@@ -11,22 +11,34 @@ pico_sdk_init()
 add_compile_options(-Wno-maybe-uninitialized)
 
 set(FAMILY rp2040)
-set(BOARDpico_sdk)
+set(BOARD pico_sdk)
+
+set(SILICA_BUILD_SANDBOX OFF CACHE BOOL "Disable silica sandbox")
+set(SILICA_BUILD_TESTS   OFF CACHE BOOL "Disable silica unittests")
+
+add_subdirectory( silica )
 
 add_executable(
     ${PROJECT_NAME}
-    main.c
+    main.cpp
 )
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_enable_stdio_uart(${PROJECT_NAME} main 0)
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE pico_stdlib hardware_resets hardware_irq pico_unique_id)
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+			pico_stdlib 
+			hardware_resets 
+			hardware_irq 
+			pico_unique_id
+
+			silica )
+
 pico_add_extra_outputs(${PROJECT_NAME})
 
 add_custom_target( flash
-    COMMAND killall -9 minicom || true
+    COMMAND pkill pico-minicom || true
     COMMAND picotool reboot -uf
     COMMAND sleep 1
     COMMAND picotool load -f "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.uf2"
