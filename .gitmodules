@@ -1,0 +1,3 @@
+[submodule "silica"]
+	path = silica
+	url = git@github.com:uzf-dot-dk/silica.git
